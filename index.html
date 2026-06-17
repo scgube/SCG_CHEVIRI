@@ -237,6 +237,10 @@
     <div class="container footer-inner">
       <div class="footer-powered">
         <span>Çeviri: </span>
+        <span class="badge openai-badge">OpenAI</span>
+        <span class="separator">·</span>
+        <span class="badge gemini-badge">Gemini</span>
+        <span class="separator">·</span>
         <span class="badge deepsl-badge">DeepL</span>
         <span class="separator">·</span>
         <span class="badge google-badge">Google</span>
@@ -267,14 +271,43 @@
 
       <div class="modal-body">
         <p class="settings-info">
-          Daha fazla dil ve yüksek çeviri kalitesi için API anahtarlarınızı ekleyin.
-          Anahtarlar tarayıcınızda saklanır, sunucumuza gönderilmez.
+          API anahtarlarınızı girin, tarayıcınızda saklanır, sunucumuza gönderilmez.
+          Sıralama: <strong>OpenAI → Gemini → DeepL → Google → LibreTranslate</strong>
         </p>
 
+        <!-- OpenAI -->
+        <div class="setting-group">
+          <div class="setting-header">
+            <label for="openaiKey">OpenAI API Anahtarı</label>
+            <span class="badge openai-badge">Öncelikli</span>
+          </div>
+          <input type="password" id="openaiKey" placeholder="sk-proj-... ile başlayan OpenAI anahtarınızı girin..." autocomplete="off">
+          <div class="setting-hint">
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI API anahtarları</a>
+            &middot; GPT-4o-mini ile yüksek kaliteli çeviri
+          </div>
+          <div class="setting-status" id="openaiStatus"></div>
+        </div>
+
+        <!-- Gemini -->
+        <div class="setting-group">
+          <div class="setting-header">
+            <label for="geminiKey">Google Gemini API Anahtarı</label>
+            <span class="badge gemini-badge">İkinci</span>
+          </div>
+          <input type="password" id="geminiKey" placeholder="Gemini API anahtarınızı girin..." autocomplete="off">
+          <div class="setting-hint">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Gemini API anahtarı alın</a>
+            &middot; Google AI Studio üzerinden ücretsiz
+          </div>
+          <div class="setting-status" id="geminiStatus"></div>
+        </div>
+
+        <!-- DeepL -->
         <div class="setting-group">
           <div class="setting-header">
             <label for="deeplKey">DeepL API Anahtarı</label>
-            <span class="badge deepsl-badge">Öncelikli</span>
+            <span class="badge deepsl-badge">Opsiyonel</span>
           </div>
           <input type="password" id="deeplKey" placeholder="DeepL API anahtarınızı girin..." autocomplete="off">
           <div class="setting-hint">
@@ -307,7 +340,23 @@
               <span class="radio-custom"></span>
               <div class="radio-text">
                 <strong>Otomatik (Önerilen)</strong>
-                <span>DeepL → Google → LibreTranslate sırasıyla dener</span>
+                <span>OpenAI → Gemini → DeepL → Google → LibreTranslate sırasıyla dener</span>
+              </div>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="method" value="openai">
+              <span class="radio-custom"></span>
+              <div class="radio-text">
+                <strong>Sadece OpenAI</strong>
+                <span>GPT-4o-mini ile yüksek kaliteli çeviri</span>
+              </div>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="method" value="gemini">
+              <span class="radio-custom"></span>
+              <div class="radio-text">
+                <strong>Sadece Gemini</strong>
+                <span>Google Gemini AI ile çeviri</span>
               </div>
             </label>
             <label class="radio-label">

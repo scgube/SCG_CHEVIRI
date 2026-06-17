@@ -230,18 +230,101 @@ const Libre = {
   }
 };
 
+/** OpenAI (GPT) */
+const OpenAI = {
+  key: '',
+  name: 'OpenAI',
+  badge: '<span class="badge openai-badge">OpenAI</span>',
+
+  async translate(text, source, target) {
+    if (!this.key) throw new Error('OpenAI API anahtarı gerekli');
+    const langName = LANG[target]?.name || target;
+    const srcLang = source === AUTO_DETECT ? '' : ` from ${LANG[source]?.name || source}`;
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.key}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: `You are a professional legal translator. Translate the following text to ${langName}${srcLang}. Return ONLY the translation, no explanations, no quotes, no notes. Preserve legal terminology accuracy.` },
+          { role: 'user', content: text }
+        ],
+        temperature: 0.1
+      })
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`OpenAI: ${res.status} — ${err}`);
+    }
+    const data = await res.json();
+    return { text: data.choices[0].message.content.trim(), detected: null, api: 'OpenAI' };
+  },
+
+  supported(code) {
+    // OpenAI supports all languages
+    return true;
+  }
+};
+
+/** Google Gemini */
+const Gemini = {
+  key: '',
+  name: 'Gemini',
+  badge: '<span class="badge gemini-badge">Gemini</span>',
+
+  async translate(text, source, target) {
+    if (!this.key) throw new Error('Gemini API anahtarı gerekli');
+    const langName = LANG[target]?.name || target;
+    const srcHint = source === AUTO_DETECT ? '' : ` from ${LANG[source]?.name || source}`;
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `You are a legal translator. Translate the following text to ${langName}${srcHint}. Return ONLY the translation, no explanations, no quotes.\n\n${text}`
+          }]
+        }],
+        generationConfig: { temperature: 0.1 }
+      })
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Gemini: ${res.status} — ${err}`);
+    }
+    const data = await res.json();
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    if (!result) throw new Error('Gemini: Boş yanıt');
+    return { text: result, detected: null, api: 'Gemini' };
+  },
+
+  supported(code) {
+    // Gemini supports all languages
+    return true;
+  }
+};
+
 // ==================== TRANSLATION ENGINE ====================
 
 const Engine = {
-  method: 'auto', // 'auto' | 'deepl' | 'google' | 'libre'
+  method: 'auto', // 'auto' | 'openai' | 'gemini' | 'deepl' | 'google' | 'libre'
 
   getActiveApis() {
     const apis = [];
     if (this.method === 'auto') {
+      if (OpenAI.key) apis.push(OpenAI);
+      if (Gemini.key) apis.push(Gemini);
       if (DeepL.key) apis.push(DeepL);
       if (Google.key) apis.push(Google);
       apis.push(Libre); // Libre always available
-    } else if (this.method === 'deepl') apis.push(DeepL);
+    } else if (this.method === 'openai') apis.push(OpenAI);
+    else if (this.method === 'gemini') apis.push(Gemini);
+    else if (this.method === 'deepl') apis.push(DeepL);
     else if (this.method === 'google') apis.push(Google);
     else if (this.method === 'libre') apis.push(Libre);
     return apis;
@@ -292,6 +375,8 @@ const App = {
   // --- Settings ---
   loadSettings() {
     const s = Storage.get('settings', {});
+    OpenAI.key = s.openaiKey || '';
+    Gemini.key = s.geminiKey || '';
     DeepL.key = s.deeplKey || '';
     Google.key = s.googleKey || '';
     Engine.method = s.method || 'auto';
@@ -299,6 +384,8 @@ const App = {
 
   saveSettings() {
     Storage.set('settings', {
+      openaiKey: OpenAI.key,
+      geminiKey: Gemini.key,
       deeplKey: DeepL.key,
       googleKey: Google.key,
       method: Engine.method
@@ -417,7 +504,8 @@ const App = {
       const result = await Engine.translate(sourceText, source, target);
       outputText.textContent = result.text;
       outputText.classList.add('visible');
-      apiSource.innerHTML = `Çeviri: ${['DeepL', 'Google', 'LibreTranslate'].includes(result.api) ? ['<span class="badge deepsl-badge">DeepL</span>','<span class="badge google-badge">Google</span>','<span class="badge libre-badge">LibreTranslate</span>'][['DeepL','Google','LibreTranslate'].indexOf(result.api)] : result.api}`;
+      const apiBadgeMap = { OpenAI: OpenAI.badge, Gemini: Gemini.badge, DeepL: DeepL.badge, Google: Google.badge, 'LibreTranslate': Libre.badge };
+apiSource.innerHTML = `Çeviri: ${apiBadgeMap[result.api] || result.api}`;
 
       if (result.detected && source === AUTO_DETECT) {
         const dn = LANG[result.detected.toLowerCase()]?.name || result.detected;
@@ -437,23 +525,31 @@ const App = {
   // --- UI ---
   updateUI() {
     // Update settings modal inputs
+    this.$('openaiKey').value = OpenAI.key;
+    this.$('geminiKey').value = Gemini.key;
     this.$('deeplKey').value = DeepL.key;
     this.$('googleKey').value = Google.key;
 
     const method = Engine.method;
-    document.querySelector(`input[name="method"][value="${method}"]`).checked = true;
+    const radio = document.querySelector(`input[name="method"][value="${method}"]`);
+    if (radio) radio.checked = true;
 
     // Update method descriptions
     this.updateMethodDescriptions();
   },
 
   updateMethodDescriptions() {
-    const deepsStatus = this.$('deeplStatus');
-    const googleStatus = this.$('googleStatus');
-    deepsStatus.textContent = DeepL.key ? '✅ Anahtar eklendi' : '⚠️ Anahtar eklenmemiş';
-    deepsStatus.style.color = DeepL.key ? 'var(--color-success)' : 'var(--color-text-muted)';
-    googleStatus.textContent = Google.key ? '✅ Anahtar eklendi' : '⚠️ Anahtar eklenmemiş';
-    googleStatus.style.color = Google.key ? 'var(--color-success)' : 'var(--color-text-muted)';
+    const setStatus = (id, key) => {
+      const el = this.$(id);
+      if (el) {
+        el.textContent = key ? '✅ Anahtar eklendi' : '⚠️ Anahtar eklenmemiş';
+        el.style.color = key ? 'var(--color-success)' : 'var(--color-text-muted)';
+      }
+    };
+    setStatus('openaiStatus', OpenAI.key);
+    setStatus('geminiStatus', Gemini.key);
+    setStatus('deeplStatus', DeepL.key);
+    setStatus('googleStatus', Google.key);
   },
 
   // --- Events ---
@@ -529,6 +625,8 @@ const App = {
 
     // --- Settings Modal ---
     this.$('settingsBtn').addEventListener('click', () => {
+      this.$('openaiKey').value = OpenAI.key;
+      this.$('geminiKey').value = Gemini.key;
       this.$('deeplKey').value = DeepL.key;
       this.$('googleKey').value = Google.key;
       document.querySelector(`input[name="method"][value="${Engine.method}"]`).checked = true;
@@ -551,6 +649,8 @@ const App = {
 
     // Save settings
     this.$('settingsSave').addEventListener('click', () => {
+      OpenAI.key = this.$('openaiKey').value.trim();
+      Gemini.key = this.$('geminiKey').value.trim();
       DeepL.key = this.$('deeplKey').value.trim();
       Google.key = this.$('googleKey').value.trim();
 
@@ -561,12 +661,12 @@ const App = {
       this.updateMethodDescriptions();
       closeModal();
 
-      // Update source/target if selected language no longer supported
-      // We'll just show a toast
       this.showToast('Ayarlar kaydedildi.', 'success');
     });
 
     // Real-time API key validation hints
+    this.$('openaiKey').addEventListener('input', () => this.updateMethodDescriptions());
+    this.$('geminiKey').addEventListener('input', () => this.updateMethodDescriptions());
     this.$('deeplKey').addEventListener('input', () => this.updateMethodDescriptions());
     this.$('googleKey').addEventListener('input', () => this.updateMethodDescriptions());
   },

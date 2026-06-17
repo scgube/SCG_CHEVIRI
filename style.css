@@ -602,6 +602,14 @@ a:hover {
   background: rgba(45, 140, 111, 0.15);
   color: #6bc9a8;
 }
+.openai-badge {
+  background: rgba(0, 200, 150, 0.15);
+  color: #4dd4ac;
+}
+.gemini-badge {
+  background: rgba(138, 180, 248, 0.15);
+  color: #8ab4f8;
+}
 
 .footer-copy {
   font-size: 12px;
