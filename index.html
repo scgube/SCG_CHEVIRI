@@ -22,12 +22,20 @@
           <span class="logo-sub">Hukuk Çeviri Platformu</span>
         </div>
       </div>
-      <button class="settings-btn" id="settingsBtn" title="Ayarlar" aria-label="Ayarlar">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </button>
+      <div class="header-actions">
+        <button class="favorites-header-btn" id="favoritesHeaderBtn" title="Favoriler" aria-label="Favoriler">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span class="fav-count" id="favCount">0</span>
+        </button>
+        <button class="settings-btn" id="settingsBtn" title="Ayarlar" aria-label="Ayarlar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -35,116 +43,191 @@
   <main class="main">
     <div class="container">
 
-      <!-- Translation Panel -->
-      <section class="translation-panel" aria-label="Çeviri paneli">
+      <!-- Feature Tabs -->
+      <div class="feature-tabs" role="tablist">
+        <button class="feature-tab active" role="tab" data-tab="translate" aria-selected="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span>Çeviri</span>
+        </button>
+        <button class="feature-tab" role="tab" data-tab="dictionary" aria-selected="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>Sözlük</span>
+        </button>
+        <button class="feature-tab" role="tab" data-tab="favorites" aria-selected="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Favoriler</span>
+          <span class="fav-tab-count" id="favTabCount"></span>
+        </button>
+      </div>
 
-        <!-- Language Selectors -->
-        <div class="language-selectors">
-          <div class="lang-group">
-            <label for="sourceLang">Kaynak Dil</label>
-            <div class="select-wrapper">
-              <select id="sourceLang">
-                <option value="auto">&#x1F50D; Otomatik Algıla</option>
-              </select>
-              <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>
+      <!-- TAB: Translate -->
+      <div class="tab-panel active" id="tab-translate" role="tabpanel">
 
-          <button class="swap-btn" id="swapBtn" title="Dilleri değiştir" aria-label="Dilleri değiştir">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
-            </svg>
-          </button>
+        <!-- Translation Panel -->
+        <section class="translation-panel" aria-label="Çeviri paneli">
 
-          <div class="lang-group">
-            <label for="targetLang">Hedef Dil</label>
-            <div class="select-wrapper">
-              <select id="targetLang">
-                <!-- Populated by JS -->
-              </select>
-              <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Text Areas -->
-        <div class="text-areas">
-          <div class="text-area-wrapper source-wrapper">
-            <div class="text-area-header">
-              <span class="area-label">Kaynak Metin</span>
-              <div class="area-actions">
-                <button class="icon-btn clear-btn" id="clearBtn" title="Temizle" aria-label="Temizle">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
+          <!-- Language Selectors -->
+          <div class="language-selectors">
+            <div class="lang-group">
+              <label for="sourceLang">Kaynak Dil</label>
+              <div class="select-wrapper">
+                <select id="sourceLang">
+                  <option value="auto">🔍 Otomatik Algıla</option>
+                </select>
+                <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
             </div>
-            <textarea id="sourceText" placeholder="Hukuki metninizi buraya yazın veya yapıştırın..." maxlength="10000" spellcheck="true"></textarea>
-            <div class="text-area-footer">
-              <span class="char-count" id="charCount">0 / 10.000</span>
-              <span class="detected-lang" id="detectedLang"></span>
-            </div>
-          </div>
 
-          <div class="text-area-wrapper target-wrapper">
-            <div class="text-area-header">
-              <span class="area-label">Çeviri</span>
-              <div class="area-actions">
-                <button class="icon-btn copy-btn" id="copyBtn" title="Kopyala" aria-label="Kopyala">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                </button>
+            <button class="swap-btn" id="swapBtn" title="Dilleri değiştir" aria-label="Dilleri değiştir">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+              </svg>
+            </button>
+
+            <div class="lang-group">
+              <label for="targetLang">Hedef Dil</label>
+              <div class="select-wrapper">
+                <select id="targetLang">
+                  <!-- Populated by JS -->
+                </select>
+                <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
             </div>
-            <div class="target-output" id="targetOutput">
-              <div class="output-placeholder" id="outputPlaceholder">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
-                <span>Çeviri burada görünecek</span>
+          </div>
+
+          <!-- Text Areas -->
+          <div class="text-areas">
+            <div class="text-area-wrapper source-wrapper">
+              <div class="text-area-header">
+                <span class="area-label">Kaynak Metin</span>
+                <div class="area-actions">
+                  <button class="icon-btn upload-btn" id="uploadBtn" title="Dosya yükle" aria-label="Dosya yükle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  </button>
+                  <input type="file" id="fileInput" accept=".txt,.pdf" hidden>
+                  <button class="icon-btn clear-btn" id="clearBtn" title="Temizle" aria-label="Temizle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
               </div>
-              <p id="outputText" class="output-text"></p>
+              <textarea id="sourceText" placeholder="Hukuki metninizi buraya yazın, yapıştırın veya 📄 dosya yükleyin..." maxlength="10000" spellcheck="true"></textarea>
+              <div class="text-area-footer">
+                <span class="char-count" id="charCount">0 / 10.000</span>
+                <span class="file-badge" id="fileBadge"></span>
+                <span class="detected-lang" id="detectedLang"></span>
+              </div>
             </div>
-            <div class="text-area-footer">
-              <span class="api-source" id="apiSource"></span>
+
+            <div class="text-area-wrapper target-wrapper">
+              <div class="text-area-header">
+                <span class="area-label">Çeviri</span>
+                <div class="area-actions">
+                  <button class="icon-btn copy-btn" id="copyBtn" title="Kopyala" aria-label="Kopyala">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="target-output" id="targetOutput">
+                <div class="output-placeholder" id="outputPlaceholder">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  </svg>
+                  <span>Çeviri burada görünecek</span>
+                </div>
+                <p id="outputText" class="output-text"></p>
+              </div>
+              <div class="text-area-footer">
+                <span class="api-source" id="apiSource"></span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Translate Button -->
-        <div class="action-bar">
-          <button class="translate-btn" id="translateBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-            <span>Çevir</span>
-          </button>
-          <div class="spinner" id="spinner" aria-hidden="true">
-            <div class="spinner-ring"></div>
-            <span>Çevriliyor...</span>
+          <!-- Translate Button -->
+          <div class="action-bar">
+            <button class="translate-btn" id="translateBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <span>Çevir</span>
+            </button>
+            <div class="spinner" id="spinner" aria-hidden="true">
+              <div class="spinner-ring"></div>
+              <span>Çevriliyor...</span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- History Section -->
-      <section class="history-section" id="historySection">
-        <div class="section-header">
-          <div class="section-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <h2>Son Çeviriler</h2>
+        <!-- History Section -->
+        <section class="history-section" id="historySection">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <h2>Son Çeviriler</h2>
+            </div>
+            <button class="clear-history-btn" id="clearHistoryBtn">Temizle</button>
           </div>
-          <button class="clear-history-btn" id="clearHistoryBtn">Temizle</button>
-        </div>
-        <div class="history-list" id="historyList">
-          <div class="history-empty">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-            </svg>
-            <span>Henüz çeviri yapılmadı</span>
+          <div class="history-list" id="historyList">
+            <div class="history-empty">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span>Henüz çeviri yapılmadı</span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+      </div>
+
+      <!-- TAB: Dictionary -->
+      <div class="tab-panel" id="tab-dictionary" role="tabpanel">
+        <section class="dictionary-section">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <h2>Hukuk Sözlüğü</h2>
+              <span class="section-subtitle">325+ Terim &middot; 13 Kategori</span>
+            </div>
+          </div>
+
+          <div class="dictionary-controls">
+            <div class="dict-search-wrapper">
+              <svg class="dict-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="dictSearch" placeholder="Terim, kelime veya açıklama ile ara..." autocomplete="off">
+              <button class="dict-clear" id="dictClear" aria-label="Aramayı temizle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="category-filters" id="categoryFilters"></div>
+          </div>
+
+          <div class="dictionary-stats" id="dictStats"></div>
+          <div class="dictionary-results" id="dictResults"></div>
+        </section>
+      </div>
+
+      <!-- TAB: Favorites -->
+      <div class="tab-panel" id="tab-favorites" role="tabpanel">
+        <section class="favorites-section">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <h2>Favori Terimlerim</h2>
+            </div>
+            <button class="clear-fav-btn" id="clearFavBtn">Temizle</button>
+          </div>
+          <div class="favorites-list" id="favoritesList">
+            <div class="history-empty" id="favEmpty">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              <span>Henüz favori teriminiz yok</span>
+              <span class="fav-hint">Sözlükten terimlerin yanındaki ⭐ ikonuna tıklayarak ekleyebilirsiniz.</span>
+            </div>
+          </div>
+        </section>
+      </div>
 
     </div>
   </main>
@@ -159,6 +242,8 @@
         <span class="badge google-badge">Google</span>
         <span class="separator">·</span>
         <span class="badge libre-badge">LibreTranslate</span>
+        <span class="separator">·</span>
+        <span class="badge" style="background:rgba(255,255,255,0.08);color:#e8d48b;">325+ Hukuk Terimi</span>
       </div>
       <p class="footer-copy">&copy; 2026 SCG CHEVIRI &mdash; Hukuk Çeviri Platformu</p>
     </div>
@@ -186,7 +271,6 @@
           Anahtarlar tarayıcınızda saklanır, sunucumuza gönderilmez.
         </p>
 
-        <!-- DeepL -->
         <div class="setting-group">
           <div class="setting-header">
             <label for="deeplKey">DeepL API Anahtarı</label>
@@ -200,7 +284,6 @@
           <div class="setting-status" id="deeplStatus"></div>
         </div>
 
-        <!-- Google -->
         <div class="setting-group">
           <div class="setting-header">
             <label for="googleKey">Google Translate API Anahtarı</label>
@@ -214,7 +297,6 @@
           <div class="setting-status" id="googleStatus"></div>
         </div>
 
-        <!-- Method -->
         <div class="setting-group">
           <div class="setting-header">
             <label>Çeviri Yöntemi</label>
@@ -266,6 +348,7 @@
   <!-- TOAST -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <script src="legal-dictionary.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

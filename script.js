@@ -590,8 +590,359 @@ const App = {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  },
+
+  // ==================== TAB SYSTEM ====================
+
+  currentTab: 'translate',
+
+  switchTab(tab) {
+    document.querySelectorAll('.feature-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.feature-tab[data-tab="${tab}"]`).classList.add('active');
+    this.$(`${tab === 'translate' ? 'tab-translate' : 'tab-' + tab}`).classList.add('active');
+    this.currentTab = tab;
+    if (tab === 'dictionary') this.renderDictionary();
+    if (tab === 'favorites') this.renderFavorites();
+  },
+
+  // ==================== DICTIONARY ====================
+
+  dictSearchTerm: '',
+  dictCategory: 'all',
+
+  renderDictionary() {
+    const results = this.$('dictResults');
+    const stats = this.$('dictStats');
+    const search = this.dictSearchTerm.toLowerCase().trim();
+
+    let filtered = getAllLegalTerms();
+
+    // Category filter
+    if (this.dictCategory !== 'all') {
+      filtered = filtered.filter(t => t.category === this.dictCategory);
+    }
+
+    // Text search
+    if (search) {
+      filtered = filtered.filter(t =>
+        t.tr.toLowerCase().includes(search) ||
+        t.en.toLowerCase().includes(search) ||
+        t.desc.toLowerCase().includes(search)
+      );
+    }
+
+    // Stats
+    const total = getAllLegalTerms().length;
+    stats.textContent = `Toplam ${total} terim · ${filtered.length} gösteriliyor`;
+
+    if (filtered.length === 0) {
+      results.innerHTML = `
+        <div class="dict-not-found">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <strong>Aramanızla eşleşen terim bulunamadı</strong>
+          <span>Farklı bir arama deneyin veya kategori filtresini değiştirin</span>
+        </div>`;
+      return;
+    }
+
+    const favs = this.getFavorites();
+    results.innerHTML = filtered.map(t => {
+      const isFav = favs.some(f => f.tr === t.tr && f.category === t.category);
+      return `
+        <div class="dict-term">
+          <div class="dict-term-tr">
+            <span class="dict-cat-icon">${t.icon || '📚'}</span>
+            ${this.escapeHtml(t.tr)}
+          </div>
+          <div class="dict-term-en">${this.escapeHtml(t.en)}</div>
+          <button class="dict-term-fav ${isFav ? 'active' : ''}" data-tr="${this.escapeHtml(t.tr)}" data-en="${this.escapeHtml(t.en)}" data-cat="${t.category}" data-icon="${t.icon || '📚'}" data-desc="${this.escapeHtml(t.desc)}" title="${isFav ? 'Favorilerden çıkar' : 'Favorilere ekle'}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </button>
+          <div class="dict-term-desc">
+            ${this.escapeHtml(t.desc)}
+            <span class="dict-category-label" style="margin-left:8px;">${t.category}</span>
+          </div>
+        </div>`;
+    }).join('');
+  },
+
+  filterDictionary() {
+    this.renderDictionary();
+  },
+
+  // ==================== FAVORITES ====================
+
+  getFavorites() {
+    return Storage.get('favorites', []);
+  },
+
+  saveFavorites(favs) {
+    Storage.set('favorites', favs);
+    this.updateFavCount();
+    if (this.currentTab === 'favorites') this.renderFavorites();
+    // Re-render dictionary if visible to update star states
+    if (this.currentTab === 'dictionary') this.renderDictionary();
+  },
+
+  toggleFavorite(tr, en, category, icon, desc) {
+    let favs = this.getFavorites();
+    const idx = favs.findIndex(f => f.tr === tr && f.category === category);
+    if (idx > -1) {
+      favs.splice(idx, 1);
+      this.showToast(`"${tr}" favorilerden çıkarıldı`, 'info');
+    } else {
+      favs.unshift({ tr, en, category, icon, desc, added: Date.now() });
+      this.showToast(`"${tr}" favorilere eklendi ⭐`, 'success');
+    }
+    this.saveFavorites(favs);
+  },
+
+  updateFavCount() {
+    const favs = this.getFavorites();
+    const count = favs.length;
+    const badge = this.$('favCount');
+    const tabCount = this.$('favTabCount');
+    if (count > 0) {
+      badge.textContent = count;
+      badge.classList.add('visible');
+      tabCount.textContent = count;
+      tabCount.classList.add('visible');
+    } else {
+      badge.classList.remove('visible');
+      tabCount.classList.remove('visible');
+    }
+  },
+
+  renderFavorites() {
+    const list = this.$('favoritesList');
+    const empty = this.$('favEmpty');
+    const favs = this.getFavorites();
+
+    if (favs.length === 0) {
+      list.innerHTML = `
+        <div class="history-empty" id="favEmpty">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>Henüz favori teriminiz yok</span>
+          <span class="fav-hint">Sözlükten terimlerin yanındaki ⭐ ikonuna tıklayarak ekleyebilirsiniz.</span>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = favs.map(f => `
+      <div class="fav-item">
+        <div class="fav-item-tr">${f.icon || '📚'} ${this.escapeHtml(f.tr)}</div>
+        <div class="fav-item-en">${this.escapeHtml(f.en)}</div>
+        <button class="fav-item-remove" data-tr="${this.escapeHtml(f.tr)}" data-cat="${f.category}" title="Favorilerden çıkar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="fav-item-cat">${f.category} · ${f.desc || ''}</div>
+      </div>
+    `).join('');
+  },
+
+  // ==================== FILE UPLOAD ====================
+
+  handleFileUpload(file) {
+    const validTypes = ['.txt', '.pdf'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+
+    if (!validTypes.includes(ext)) {
+      this.showToast('Sadece .txt ve .pdf dosyaları destekleniyor.', 'error');
+      return;
+    }
+
+    const badge = this.$('fileBadge');
+    badge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ${file.name}`;
+
+    if (ext === '.txt') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        this.$('sourceText').value = content.slice(0, 10000);
+        this.$('sourceText').dispatchEvent(new Event('input'));
+        this.showToast(`"${file.name}" yüklendi (${content.length} karakter)`, 'success');
+      };
+      reader.onerror = () => this.showToast('Dosya okunamadı.', 'error');
+      reader.readAsText(file, 'UTF-8');
+    } else if (ext === '.pdf') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // For PDF, we extract text using a simple approach
+        // We embed PDF.js for better extraction
+        this.extractPDFText(e.target.result).then(text => {
+          this.$('sourceText').value = text.slice(0, 10000);
+          this.$('sourceText').dispatchEvent(new Event('input'));
+          this.showToast(`"${file.name}" yüklendi (${text.length} karakter)`, 'success');
+        }).catch(() => {
+          this.showToast('PDF okunurken hata oluştu. Lütfen metni kopyalayıp yapıştırın.', 'error');
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  },
+
+  async extractPDFText(arrayBuffer) {
+    // Try using PDF.js if available, otherwise fallback to basic extraction
+    if (typeof pdfjsLib !== 'undefined') {
+      try {
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let text = '';
+        for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(item => item.str).join(' ') + '\n';
+        }
+        return text;
+      } catch (e) {
+        throw e;
+      }
+    }
+    // Fallback: basic text extraction from raw PDF bytes
+    try {
+      const bytes = new Uint8Array(arrayBuffer);
+      const decoder = new TextDecoder('utf-8');
+      let content = decoder.decode(bytes);
+      // Extract text between parentheses (PDF text objects)
+      const matches = content.match(/\(([^)]*)\)/g) || [];
+      return matches.map(m => m.slice(1, -1)).join(' ').slice(0, 10000);
+    } catch {
+      throw new Error('PDF okunamadı');
+    }
+  },
+
+  // ==================== INIT ====================
+  extendedInit() {
+    // Tab switching
+    document.querySelectorAll('.feature-tab').forEach(tab => {
+      tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
+    });
+
+    // Header favorites button
+    this.$('favoritesHeaderBtn').addEventListener('click', () => {
+      this.switchTab('favorites');
+    });
+
+    // Dictionary search
+    this.$('dictSearch').addEventListener('input', (e) => {
+      this.dictSearchTerm = e.target.value;
+      document.querySelector('.dict-clear').classList.toggle('visible', e.target.value.length > 0);
+      this.filterDictionary();
+    });
+
+    // Dictionary clear
+    this.$('dictClear').addEventListener('click', () => {
+      this.$('dictSearch').value = '';
+      this.dictSearchTerm = '';
+      this.$('dictClear').classList.remove('visible');
+      this.filterDictionary();
+      this.$('dictSearch').focus();
+    });
+
+    // Dictionary category filters (delegated)
+    this.$('categoryFilters').addEventListener('click', (e) => {
+      const btn = e.target.closest('.cat-filter');
+      if (!btn) return;
+      document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      this.dictCategory = btn.dataset.cat;
+      this.filterDictionary();
+    });
+
+    // Dictionary favorite toggle (delegated)
+    this.$('dictResults').addEventListener('click', (e) => {
+      const btn = e.target.closest('.dict-term-fav');
+      if (!btn) return;
+      const tr = btn.dataset.tr;
+      const en = btn.dataset.en;
+      const cat = btn.dataset.cat;
+      const icon = btn.dataset.icon;
+      const desc = btn.dataset.desc;
+      this.toggleFavorite(tr, en, cat, icon, desc);
+    });
+
+    // Favorites list remove (delegated)
+    this.$('favoritesList').addEventListener('click', (e) => {
+      const btn = e.target.closest('.fav-item-remove');
+      if (!btn) return;
+      const tr = btn.dataset.tr;
+      const cat = btn.dataset.cat;
+      let favs = this.getFavorites();
+      favs = favs.filter(f => !(f.tr === tr && f.category === cat));
+      this.saveFavorites(favs);
+      this.showToast(`"${tr}" favorilerden çıkarıldı`, 'info');
+    });
+
+    // Clear all favorites
+    this.$('clearFavBtn').addEventListener('click', () => {
+      const favs = this.getFavorites();
+      if (favs.length === 0) return;
+      this.saveFavorites([]);
+      this.showToast('Tüm favoriler temizlendi.', 'info');
+    });
+
+    // File upload
+    this.$('uploadBtn').addEventListener('click', () => this.$('fileInput').click());
+    this.$('fileInput').addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        this.handleFileUpload(e.target.files[0]);
+        e.target.value = '';
+      }
+    });
+
+    // Drag and drop for source text
+    this.$('sourceText').addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--color-gold)';
+    });
+    this.$('sourceText').addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = '';
+    });
+    this.$('sourceText').addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = '';
+      if (e.dataTransfer.files.length > 0) {
+        this.handleFileUpload(e.dataTransfer.files[0]);
+      }
+    });
+
+    // Load PDF.js from CDN if needed
+    if (typeof pdfjsLib === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; };
+      document.head.appendChild(script);
+    }
   }
 };
 
-// ==================== INIT ====================
-document.addEventListener('DOMContentLoaded', () => App.init());
+// ==================== START ====================
+document.addEventListener('DOMContentLoaded', () => {
+  // First DOM setup
+  App.init();
+
+  // Populate category filters
+  const catContainer = document.getElementById('categoryFilters');
+  if (catContainer) {
+    catContainer.innerHTML = '<button class="cat-filter active" data-cat="all">📋 Tümü</button>';
+    for (const cat of LEGAL_CATEGORIES) {
+      const icon = LEGAL_DICTIONARY[cat].icon || '📚';
+      catContainer.innerHTML += `<button class="cat-filter" data-cat="${cat}">${icon} ${cat}</button>`;
+    }
+  }
+
+  // Extended features init
+  App.extendedInit();
+  App.updateFavCount();
+
+  // Set Turkish as default source
+  const srcSelect = document.getElementById('sourceLang');
+  if (srcSelect) srcSelect.value = 'tr';
+});
