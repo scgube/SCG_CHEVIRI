@@ -1,6 +1,6 @@
 /* =============================================
    SCG CHEVIRI — Legal Translation Engine
-   DeepL → Google → LibreTranslate Chain
+   OpenAI → Gemini → Google → LibreTranslate Chain
    ============================================= */
 
 // ==================== LANGUAGE DATABASE ====================
@@ -131,43 +131,6 @@ const Storage = {
 };
 
 // ==================== API TRANSLATORS ====================
-
-/** DeepL Translator (Free API) */
-const DeepL = {
-  key: '',
-  name: 'DeepL',
-  badge: '<span class="badge deepsl-badge">DeepL</span>',
-
-  async translate(text, source, target) {
-    if (!this.key) throw new Error('DeepL API anahtarı gerekli');
-    const src = source === AUTO_DETECT ? undefined : source;
-    const body = { text: [text], target_lang: target.toUpperCase() };
-    if (src) body.source_lang = src.toUpperCase();
-
-    // DeepL special codes
-    const fix = (c) => ({ 'zh': 'ZH', 'zh-TW': 'ZH', 'iw': 'HE' }[c] || c.toUpperCase());
-
-    const res = await fetch('https://api-free.deepl.com/v2/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `DeepL-Auth-Key ${this.key}` },
-      body: JSON.stringify({
-        text: [text],
-        source_lang: source === AUTO_DETECT ? undefined : fix(source),
-        target_lang: fix(target)
-      })
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`DeepL: ${res.status} — ${err}`);
-    }
-    const data = await res.json();
-    return { text: data.translations[0].text, detected: data.translations[0].detected_source_language, api: 'DeepL' };
-  },
-
-  supported(code) {
-    return LANG[code] && LANG[code].deepl;
-  }
-};
 
 /** Google Translate */
 const Google = {
@@ -312,19 +275,17 @@ const Gemini = {
 // ==================== TRANSLATION ENGINE ====================
 
 const Engine = {
-  method: 'auto', // 'auto' | 'openai' | 'gemini' | 'deepl' | 'google' | 'libre'
+  method: 'auto', // 'auto' | 'openai' | 'gemini' | 'google' | 'libre'
 
   getActiveApis() {
     const apis = [];
     if (this.method === 'auto') {
       if (OpenAI.key) apis.push(OpenAI);
       if (Gemini.key) apis.push(Gemini);
-      if (DeepL.key) apis.push(DeepL);
       if (Google.key) apis.push(Google);
       apis.push(Libre); // Libre always available
     } else if (this.method === 'openai') apis.push(OpenAI);
     else if (this.method === 'gemini') apis.push(Gemini);
-    else if (this.method === 'deepl') apis.push(DeepL);
     else if (this.method === 'google') apis.push(Google);
     else if (this.method === 'libre') apis.push(Libre);
     return apis;
@@ -377,7 +338,6 @@ const App = {
     const s = Storage.get('settings', {});
     OpenAI.key = s.openaiKey || '';
     Gemini.key = s.geminiKey || '';
-    DeepL.key = s.deeplKey || '';
     Google.key = s.googleKey || '';
     Engine.method = s.method || 'auto';
   },
@@ -386,7 +346,6 @@ const App = {
     Storage.set('settings', {
       openaiKey: OpenAI.key,
       geminiKey: Gemini.key,
-      deeplKey: DeepL.key,
       googleKey: Google.key,
       method: Engine.method
     });
@@ -504,7 +463,7 @@ const App = {
       const result = await Engine.translate(sourceText, source, target);
       outputText.textContent = result.text;
       outputText.classList.add('visible');
-      const apiBadgeMap = { OpenAI: OpenAI.badge, Gemini: Gemini.badge, DeepL: DeepL.badge, Google: Google.badge, 'LibreTranslate': Libre.badge };
+      const apiBadgeMap = { OpenAI: OpenAI.badge, Gemini: Gemini.badge, Google: Google.badge, 'LibreTranslate': Libre.badge };
 apiSource.innerHTML = `Çeviri: ${apiBadgeMap[result.api] || result.api}`;
 
       if (result.detected && source === AUTO_DETECT) {
@@ -527,7 +486,6 @@ apiSource.innerHTML = `Çeviri: ${apiBadgeMap[result.api] || result.api}`;
     // Update settings modal inputs
     this.$('openaiKey').value = OpenAI.key;
     this.$('geminiKey').value = Gemini.key;
-    this.$('deeplKey').value = DeepL.key;
     this.$('googleKey').value = Google.key;
 
     const method = Engine.method;
@@ -548,7 +506,6 @@ apiSource.innerHTML = `Çeviri: ${apiBadgeMap[result.api] || result.api}`;
     };
     setStatus('openaiStatus', OpenAI.key);
     setStatus('geminiStatus', Gemini.key);
-    setStatus('deeplStatus', DeepL.key);
     setStatus('googleStatus', Google.key);
   },
 
@@ -627,7 +584,6 @@ apiSource.innerHTML = `Çeviri: ${apiBadgeMap[result.api] || result.api}`;
     this.$('settingsBtn').addEventListener('click', () => {
       this.$('openaiKey').value = OpenAI.key;
       this.$('geminiKey').value = Gemini.key;
-      this.$('deeplKey').value = DeepL.key;
       this.$('googleKey').value = Google.key;
       document.querySelector(`input[name="method"][value="${Engine.method}"]`).checked = true;
       this.updateMethodDescriptions();
@@ -651,7 +607,6 @@ apiSource.innerHTML = `Çeviri: ${apiBadgeMap[result.api] || result.api}`;
     this.$('settingsSave').addEventListener('click', () => {
       OpenAI.key = this.$('openaiKey').value.trim();
       Gemini.key = this.$('geminiKey').value.trim();
-      DeepL.key = this.$('deeplKey').value.trim();
       Google.key = this.$('googleKey').value.trim();
 
       const method = document.querySelector('input[name="method"]:checked').value;
@@ -667,7 +622,6 @@ apiSource.innerHTML = `Çeviri: ${apiBadgeMap[result.api] || result.api}`;
     // Real-time API key validation hints
     this.$('openaiKey').addEventListener('input', () => this.updateMethodDescriptions());
     this.$('geminiKey').addEventListener('input', () => this.updateMethodDescriptions());
-    this.$('deeplKey').addEventListener('input', () => this.updateMethodDescriptions());
     this.$('googleKey').addEventListener('input', () => this.updateMethodDescriptions());
   },
 

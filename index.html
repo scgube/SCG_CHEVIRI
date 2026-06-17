@@ -241,8 +241,6 @@
         <span class="separator">·</span>
         <span class="badge gemini-badge">Gemini</span>
         <span class="separator">·</span>
-        <span class="badge deepsl-badge">DeepL</span>
-        <span class="separator">·</span>
         <span class="badge google-badge">Google</span>
         <span class="separator">·</span>
         <span class="badge libre-badge">LibreTranslate</span>
@@ -272,7 +270,7 @@
       <div class="modal-body">
         <p class="settings-info">
           API anahtarlarınızı girin, tarayıcınızda saklanır, sunucumuza gönderilmez.
-          Sıralama: <strong>OpenAI → Gemini → DeepL → Google → LibreTranslate</strong>
+          Sıralama: <strong>OpenAI → Gemini → Google → LibreTranslate</strong>
         </p>
 
         <!-- OpenAI -->
@@ -303,20 +301,6 @@
           <div class="setting-status" id="geminiStatus"></div>
         </div>
 
-        <!-- DeepL -->
-        <div class="setting-group">
-          <div class="setting-header">
-            <label for="deeplKey">DeepL API Anahtarı</label>
-            <span class="badge deepsl-badge">Opsiyonel</span>
-          </div>
-          <input type="password" id="deeplKey" placeholder="DeepL API anahtarınızı girin..." autocomplete="off">
-          <div class="setting-hint">
-            <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener">Ücretsiz API anahtarı alın</a>
-            &middot; Aylık 500.000 karakter ücretsiz
-          </div>
-          <div class="setting-status" id="deeplStatus"></div>
-        </div>
-
         <div class="setting-group">
           <div class="setting-header">
             <label for="googleKey">Google Translate API Anahtarı</label>
@@ -340,7 +324,7 @@
               <span class="radio-custom"></span>
               <div class="radio-text">
                 <strong>Otomatik (Önerilen)</strong>
-                <span>OpenAI → Gemini → DeepL → Google → LibreTranslate sırasıyla dener</span>
+                <span>OpenAI → Gemini → Google → LibreTranslate sırasıyla dener</span>
               </div>
             </label>
             <label class="radio-label">
@@ -357,14 +341,6 @@
               <div class="radio-text">
                 <strong>Sadece Gemini</strong>
                 <span>Google Gemini AI ile çeviri</span>
-              </div>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="method" value="deepl">
-              <span class="radio-custom"></span>
-              <div class="radio-text">
-                <strong>Sadece DeepL</strong>
-                <span>Yalnızca DeepL API kullan</span>
               </div>
             </label>
             <label class="radio-label">
